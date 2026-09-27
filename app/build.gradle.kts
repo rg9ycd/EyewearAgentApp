@@ -9,6 +9,12 @@ android {
         version = release(37)
     }
 
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/main/java")
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.eyewearagentapp"
         minSdk = 26
