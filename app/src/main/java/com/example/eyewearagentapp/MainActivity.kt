@@ -98,10 +98,9 @@ class MainActivity : AppCompatActivity() {
             db = AppDatabase.getDatabase(this)
 
             initViews()
-            checkPermissions()
-            updateBluetoothStatus()
             setupRecyclerView()
             observeRecordings()
+            checkAndRequestPermissions()
         } catch (e: Throwable) {
             e.printStackTrace()
             try {
@@ -140,7 +139,7 @@ class MainActivity : AppCompatActivity() {
         btnRecord.setOnClickListener { toggleRecording() }
     }
 
-    private fun checkPermissions() {
+    private fun checkAndRequestPermissions() {
         val permissions = mutableListOf(Manifest.permission.RECORD_AUDIO)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             permissions.add(Manifest.permission.BLUETOOTH_CONNECT)
@@ -150,6 +149,8 @@ class MainActivity : AppCompatActivity() {
         }
         if (missing.isNotEmpty()) {
             permissionLauncher.launch(missing.toTypedArray())
+        } else {
+            updateBluetoothStatus()
         }
     }
 

@@ -3,6 +3,8 @@ package com.example.eyewearagentapp.ai
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -19,38 +21,40 @@ class SpeechToTextManager(
 
     init {
         try {
-            if (SpeechRecognizer.isRecognitionAvailable(context)) {
-                speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context).apply {
-                    setRecognitionListener(object : RecognitionListener {
-                        override fun onReadyForSpeech(params: Bundle?) {}
-                        override fun onBeginningOfSpeech() {}
-                        override fun onRmsChanged(rmsdB: Float) {}
-                        override fun onBufferReceived(buffer: ByteArray?) {}
-                        override fun onEndOfSpeech() {}
+            Handler(Looper.getMainLooper()).post {
+                if (SpeechRecognizer.isRecognitionAvailable(context)) {
+                    speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context).apply {
+                        setRecognitionListener(object : RecognitionListener {
+                            override fun onReadyForSpeech(params: Bundle?) {}
+                            override fun onBeginningOfSpeech() {}
+                            override fun onRmsChanged(rmsdB: Float) {}
+                            override fun onBufferReceived(buffer: ByteArray?) {}
+                            override fun onEndOfSpeech() {}
 
-                        override fun onError(error: Int) {
-                            val message = getErrorMessage(error)
-                            onErrorOccurred(message)
-                            isListening = false
-                        }
-
-                        override fun onResults(results: Bundle?) {
-                            val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                            if (!matches.isNullOrEmpty()) {
-                                onFinalText(matches[0])
+                            override fun onError(error: Int) {
+                                val message = getErrorMessage(error)
+                                onErrorOccurred(message)
+                                isListening = false
                             }
-                            isListening = false
-                        }
 
-                        override fun onPartialResults(partialResults: Bundle?) {
-                            val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                            if (!matches.isNullOrEmpty()) {
-                                onPartialText(matches[0])
+                            override fun onResults(results: Bundle?) {
+                                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                                if (!matches.isNullOrEmpty()) {
+                                    onFinalText(matches[0])
+                                }
+                                isListening = false
                             }
-                        }
 
-                        override fun onEvent(eventType: Int, params: Bundle?) {}
-                    })
+                            override fun onPartialResults(partialResults: Bundle?) {
+                                val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                                if (!matches.isNullOrEmpty()) {
+                                    onPartialText(matches[0])
+                                }
+                            }
+
+                            override fun onEvent(eventType: Int, params: Bundle?) {}
+                        })
+                    }
                 }
             }
         } catch (e: Exception) {
