@@ -54,6 +54,7 @@ dependencies {
 
     // UI
     implementation(libs.recyclerview)
+    implementation(libs.coordinatorlayout)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.os.Build
@@ -34,6 +35,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -99,9 +102,20 @@ class MainActivity : AppCompatActivity() {
             updateBluetoothStatus()
             setupRecyclerView()
             observeRecordings()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             e.printStackTrace()
-            Toast.makeText(this, "初期化エラー: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+            try {
+                val sw = StringWriter()
+                val pw = PrintWriter(sw)
+                e.printStackTrace(pw)
+                val intent = Intent(this, CrashActivity::class.java).apply {
+                    putExtra("EXTRA_ERROR_DETAILS", sw.toString())
+                }
+                startActivity(intent)
+                finish()
+            } catch (ex: Throwable) {
+                Toast.makeText(this, "初期化エラー: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
